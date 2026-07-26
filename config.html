@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>System Config — Chris Kaizer Carreon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&family=Anton&display=swap" rel="stylesheet">
+  <style>
+    :root { --cyan: #00d4ff; --bg-deep: #050818; --white: #ffffff; --panel-bg: rgba(5,8,24,0.8); --success: #00ffaa; --warning: #ffcc00; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-deep); font-family: 'Rajdhani', sans-serif; color: var(--white); }
+    .bg { position: absolute; inset: 0; background-image: url('p3rc.jpg'); background-size: cover; background-position: left center; background-repeat: no-repeat; z-index: 0; }
+    .bg-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(5,8,24,0.9) 0%, rgba(5,8,24,0.2) 35%, rgba(5,8,24,0.2) 65%, rgba(5,8,24,0.85) 100%); }
+    .bg-grid { position: absolute; inset: 0; z-index: 2; background-image: linear-gradient(rgba(0,180,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,180,255,0.04) 1px, transparent 1px); background-size: 48px 48px; }
+    .scanlines { position: absolute; inset: 0; z-index: 20; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px) skewX(-15deg); } to { opacity: 1; transform: translateY(0) skewX(-15deg); } }
+    @keyframes cardFade { from { opacity: 0; transform: translateY(20px) skewX(-5deg); } to { opacity: 1; transform: translateY(0) skewX(-5deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    
+    .back-btn { position: absolute; top: 28px; left: 32px; z-index: 30; background: none; border: 1.5px solid rgba(0,212,255,0.4); color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; padding: 8px 18px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+    .back-btn:hover { background: var(--cyan); color: var(--bg-deep); }
+    .corner { position: absolute; z-index: 15; width: 36px; height: 36px; }
+    .corner-tl { top:18px; left:18px; border-top:1.5px solid rgba(0,180,255,0.35); border-left:1.5px solid rgba(0,180,255,0.35); }
+    .corner-tr { top:18px; right:18px; border-top:1.5px solid rgba(0,180,255,0.35); border-right:1.5px solid rgba(0,180,255,0.35); }
+    .corner-bl { bottom:18px; left:18px; border-bottom:1.5px solid rgba(0,180,255,0.35); border-left:1.5px solid rgba(0,180,255,0.35); }
+    .corner-br { bottom:18px; right:18px; border-bottom:1.5px solid rgba(0,180,255,0.35); border-right:1.5px solid rgba(0,180,255,0.35); }
+    .ticker { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; z-index: 15; background: linear-gradient(to right, transparent, var(--cyan), transparent); animation: pulse 4s ease-in-out infinite; }
+    .container { position: relative; z-index: 10; display: flex; height: 100vh; padding: 60px 80px; gap: 50px; }
+    .list-section { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .category-label { font-family: 'Orbitron', sans-serif; color: var(--cyan); font-size: 14px; letter-spacing: 5px; margin-bottom: 25px; text-transform: uppercase; opacity: 0.8; animation: fadeUp 0.7s ease both; }
+    .menu-item { padding: 18px 30px; margin: 8px 0; background: rgba(0,30,60,0.4); backdrop-filter: blur(4px); transform: skewX(-15deg); cursor: pointer; transition: all 0.3s cubic-bezier(0.25,1,0.5,1); border: 1px solid rgba(0,212,255,0.15); animation: fadeUp 0.7s ease both; outline: none; }
+    .menu-item:nth-child(2) { animation-delay: 0.1s; } .menu-item:nth-child(3) { animation-delay: 0.2s; } .menu-item:nth-child(4) { animation-delay: 0.3s; }
+    .menu-item h2 { font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transform: skewX(15deg); color: rgba(255,255,255,0.6); }
+    .menu-item:hover, .menu-item.active { background: var(--cyan); color: var(--bg-deep); transform: translateX(20px) skewX(-15deg); border: 1px solid var(--white); box-shadow: -10px 0 20px rgba(0,212,255,0.3); }
+    .menu-item:hover h2, .menu-item.active h2 { color: var(--bg-deep); }
+    .display-section { flex: 1.2; position: relative; display: flex; align-items: center; justify-content: center; }
+    .panel { width: 100%; min-height: 60%; background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid rgba(0,212,255,0.2); position: absolute; display: none; transform: skewX(-5deg); padding: 40px; }
+    .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--cyan), transparent); }
+    .panel.active { display: block; animation: cardFade 0.5s ease both; }
+    .panel-content { transform: skewX(5deg); }
+    .panel-title { font-family: 'Orbitron', sans-serif; font-size: 32px; color: var(--white); margin-bottom: 28px; border-bottom: 1px solid rgba(0,212,255,0.25); padding-bottom: 12px; }
+    .skill-card { margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .skill-header { display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif; font-size: 12px; margin-bottom: 4px; }
+    .skill-type { color: var(--cyan); font-weight: 900; letter-spacing: 2px; }
+    .skill-rank { color: var(--white); opacity: 0.5; }
+    .skill-name { font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .skill-desc { font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.5; margin-top: 4px; }
+    
+    /* ── SOCIAL LINKS (SIMPLIFIED) ── */
+    .sl-table-header {
+      display: grid; grid-template-columns: 1fr 120px 120px;
+      padding: 4px 14px 6px; border-bottom: 2px solid rgba(0,212,255,0.5);
+      font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px;
+      color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .sl-container { display: flex; flex-direction: column; gap: 3px; }
+    .sl-card {
+      display: grid; grid-template-columns: 1fr 120px 120px;
+      align-items: center; padding: 10px 14px;
+      background: rgba(0,30,70,0.45); border: 1px solid rgba(0,212,255,0.12);
+      transition: background 0.2s, border-color 0.2s; cursor: pointer;
+    }
+    .sl-card.selected {
+      background: rgba(255,255,255,0.95); border-color: #fff;
+    }
+    .sl-card.hov { 
+      background: rgba(255,255,255,0.95); border-color: #fff;
+      transform: translateX(8px);
+    }
+    .sl-card:not(.selected):hover { 
+      background: rgba(255,255,255,0.95); border-color: #fff;
+      transform: translateX(8px);
+    }
+    .sl-card.hov .sl-arcana,
+    .sl-card.hov .sl-rank,
+    .sl-card:not(.selected):hover .sl-arcana,
+    .sl-card:not(.selected):hover .sl-rank { 
+      color: #0a1a3a; 
+    }
+    .sl-card.hov .sl-link,
+    .sl-card:not(.selected):hover .sl-link {
+      background: #0a1a3a;
+      color: #fff;
+    }
+    .sl-arcana {
+      font-family: 'Anton', sans-serif; font-size: 18px; color: rgba(0,212,255,0.7);
+      font-style: italic; letter-spacing: 1px;
+    }
+    .sl-card.selected .sl-arcana { color: #0a1a3a; }
+    .sl-rank {
+      font-family: 'Orbitron', sans-serif; font-size: 11px;
+      color: rgba(255,255,255,0.45); text-align: center; letter-spacing: 1px;
+    }
+    .sl-card.selected .sl-rank { color: rgba(10,26,58,0.6); }
+    .sl-link-wrap { display: flex; justify-content: flex-end; }
+    .sl-link {
+      font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 5px 12px; text-transform: uppercase;
+      background: #0a1a3a; color: #fff; border: 1.5px solid #fff;
+      text-decoration: none; cursor: pointer; transition: all 0.2s;
+    }
+    .sl-link:hover { background: var(--cyan); color: var(--bg-deep); }
+    .sl-card.selected .sl-link { background: #0a1a3a; color: #fff; border-color: #0a1a3a; }
+    
+    .sl-detail-bar {
+      margin-top: 14px; padding: 12px 16px;
+      background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.15);
+    }
+    .sl-detail-title {
+      font-family: 'Anton', sans-serif; font-size: 15px; font-style: italic;
+      color: #00d4ff; letter-spacing: 3px; margin-bottom: 6px;
+    }
+    .sl-detail-desc {
+      font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; padding-left: 8px;
+      display: flex; gap: 8px;
+    }
+    .sl-detail-desc::before { content: '●'; color: #00d4ff; flex-shrink: 0; font-size: 10px; margin-top: 3px; }
+
+    /* ── REQUEST LIST (P3R style) ── */
+    .req-table-header {
+      display: grid; grid-template-columns: 52px 1fr 90px 130px;
+      padding: 4px 14px 6px; border-bottom: 2px solid rgba(0,212,255,0.5);
+      font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px;
+      color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .req-table-header .col-status { text-align: right; }
+    .log-container { display: flex; flex-direction: column; gap: 3px; }
+    .request-card {
+      display: grid; grid-template-columns: 52px 1fr 90px 130px;
+      align-items: center; padding: 10px 14px;
+      background: rgba(0,30,70,0.45); border: 1px solid rgba(0,212,255,0.12);
+      transition: background 0.2s, border-color 0.2s; cursor: default;
+    }
+    .request-card.selected {
+      background: rgba(255,255,255,0.95); border-color: #fff;
+    }
+    .request-card:not(.selected):hover { background: rgba(0,80,160,0.35); border-color: rgba(0,212,255,0.3); }
+    .req-num {
+      font-family: 'Anton', sans-serif; font-size: 22px; color: rgba(0,212,255,0.7);
+      font-style: italic; text-align: center; line-height: 1;
+    }
+    .request-card.selected .req-num { color: #0a1a3a; }
+    .req-quest {
+      font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600;
+      color: rgba(255,255,255,0.88); letter-spacing: 0.5px; padding: 0 8px;
+    }
+    .request-card.selected .req-quest { color: #0a1a3a; }
+    .req-deadline {
+      font-family: 'Orbitron', sans-serif; font-size: 11px;
+      color: rgba(255,255,255,0.45); text-align: center; letter-spacing: 1px;
+    }
+    .request-card.selected .req-deadline { color: rgba(10,26,58,0.6); }
+    .req-status-wrap { display: flex; justify-content: flex-end; }
+    .req-status {
+      font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 5px 12px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .req-status.status-available {
+      background: #0a1a3a; color: #fff; border: 1.5px solid #fff;
+    }
+    .req-status.status-inprogress {
+      background: rgba(0,180,255,0.15); color: #00d4ff; border: 1.5px solid #00d4ff;
+    }
+    .req-status.status-completed {
+      background: rgba(0,255,170,0.08); color: var(--success); border: 1.5px solid var(--success);
+    }
+    .req-status .check { font-size: 12px; }
+    .req-task-bar {
+      margin-top: 14px; padding: 12px 16px;
+      background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.15);
+    }
+    .req-task-title {
+      font-family: 'Anton', sans-serif; font-size: 15px; font-style: italic;
+      color: #00d4ff; letter-spacing: 3px; margin-bottom: 6px;
+    }
+    .req-task-desc {
+      font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; padding-left: 8px;
+      display: flex; gap: 8px;
+    }
+    .req-task-desc::before { content: '●'; color: #00d4ff; flex-shrink: 0; font-size: 10px; margin-top: 3px; }
+    
+    .footer-cta { position: absolute; bottom: 0; right: 0; left: 0; padding: 14px 40px; background: linear-gradient(to right, transparent, rgba(0,212,255,0.15)); border-top: 1px solid rgba(0,212,255,0.25); display: flex; justify-content: flex-end; z-index: 25; }
+    .cta-text { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+    .cta-highlight { color: var(--cyan); font-weight: 900; animation: flicker 3s infinite; }
+    .hud-bgm { position: fixed; bottom: 20px; right: 24px; z-index: 30; display: flex; align-items: center; gap: 7px; }
+    .hud-key { width: 22px; height: 22px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: border-color 0.2s, box-shadow 0.2s, color 0.2s; }
+    .music-btn { display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.38); text-transform: uppercase; padding: 4px 6px; transition: color 0.2s; }
+    .music-btn:hover { color: rgba(255,255,255,0.7); }
+    .music-btn.playing { color: var(--cyan); }
+    .music-btn.playing .hud-key { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 8px rgba(0,212,255,0.4); }
+    .music-label-off { display: inline; } .music-label-on { display: none; }
+    .music-btn.playing .music-label-off { display: none; }
+    .music-btn.playing .music-label-on { display: inline; }
+    .eq-bars { display: none; align-items: flex-end; gap: 2px; height: 14px; }
+    .music-btn.playing .eq-bars { display: flex; }
+    .eq-bar { width: 3px; background: var(--cyan); border-radius: 1px; animation: eqBounce 0.8s ease-in-out infinite alternate; }
+    .eq-bar:nth-child(1) { animation-duration: 0.6s; } .eq-bar:nth-child(2) { animation-duration: 0.9s; animation-delay: 0.15s; } .eq-bar:nth-child(3) { animation-duration: 0.7s; animation-delay: 0.30s; } .eq-bar:nth-child(4) { animation-duration: 1.0s; animation-delay: 0.05s; }
+    @keyframes eqBounce { from { height: 3px; } to { height: 14px; } }
+
+    @media (orientation: portrait), (max-width: 768px) {
+      body { overflow-y: auto; height: auto; }
+      .container { flex-direction: column; height: auto; min-height: 100vh; padding: 80px 24px 120px; gap: 28px; }
+      .list-section { flex: none; width: 100%; justify-content: flex-start; }
+      .category-label { font-size: 11px; letter-spacing: 4px; margin-bottom: 16px; }
+      .menu-item { padding: 14px 22px; margin: 6px 0; }
+      .menu-item h2 { font-size: 20px; letter-spacing: 1px; }
+      .menu-item:hover, .menu-item.active { transform: translateX(10px) skewX(-15deg); }
+      .display-section { flex: none; width: 100%; position: relative; min-height: 380px; align-items: flex-start; }
+      .panel { position: relative; transform: skewX(-3deg); padding: 0; min-height: 380px; }
+      .panel-content { transform: skewX(3deg); }
+      .panel-title { font-size: 22px; margin-bottom: 20px; }
+      .skill-name { font-size: 18px; } .skill-desc { font-size: 14px; } .skill-header { font-size: 10px; }
+      .request-desc { font-size: 14px; }
+      .footer-cta { position: fixed; bottom: 0; left: 0; right: 0; padding: 10px 16px; justify-content: center; background: rgba(5,8,24,0.95); backdrop-filter: blur(8px); }
+      .cta-text { font-size: 9px; letter-spacing: 2px; text-align: center; }
+      .back-btn { top: 16px; left: 16px; padding: 7px 14px; font-size: 10px; }
+      .corner { width: 24px; height: 24px; }
+      .corner-tl { top: 12px; left: 12px; } .corner-tr { top: 12px; right: 12px; }
+      .corner-bl { bottom: 12px; left: 12px; } .corner-br { bottom: 12px; right: 12px; }
+      .hud-bgm { bottom: 50px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg"></div><div class="bg-overlay"></div><div class="bg-grid"></div><div class="scanlines"></div>
+<button class="back-btn" onclick="window.location.href='index.html'">◀ Back</button>
+<div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+<div class="container">
+  <div class="list-section">
+    <div class="category-label">System Menu</div>
+    <div class="menu-item active" onclick="openTab('stats', this)"><h2>Active Skills</h2></div>
+    <div class="menu-item" onclick="openTab('slinks', this)"><h2>Social Links</h2></div>
+    <div class="menu-item" onclick="openTab('log', this)"><h2>Journey Log</h2></div>
+  </div>
+  <div class="display-section">
+
+    <div id="stats" class="panel active">
+      <div class="panel-content">
+        <h1 class="panel-title">Inherent Abilities</h1>
+        <div class="skill-card">
+          <div class="skill-header"><span class="skill-type">[CREATIVE]</span><span class="skill-rank">RANK: 69</span></div>
+          <div class="skill-name">Visual Arts</div>
+          <div class="skill-desc">Channeling aesthetic energy into works of art that capture project concepts and emotional depth.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header"><span class="skill-type">[RESTORATIVE]</span><span class="skill-rank">RANK: 420</span></div>
+          <div class="skill-name">Master Baking</div>
+          <div class="skill-desc">Expert-level precision in the kitchen, specializing in professional-grade recipes and cost-optimized production.</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header"><span class="skill-type">[PHYSICAL]</span><span class="skill-rank">RANK: 67</span></div>
+          <div class="skill-name">Combat Conditioning</div>
+          <div class="skill-desc">Consistent physical training to maintain high-performance levels and peak operational stamina.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="slinks" class="panel">
+      <div class="panel-content">
+        <h1 class="panel-title">Social Links</h1>
+
+        <div class="sl-table-header">
+          <div>Connection</div>
+          <div style="text-align:center">Arcana</div>
+          <div style="text-align:right">Rank</div>
+        </div>
+
+        <div class="sl-container" id="slList">
+        </div>
+
+        <div class="sl-detail-bar">
+          <div class="sl-detail-title">Link Details</div>
+          <div class="sl-detail-desc" id="slDetailDesc"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="log" class="panel">
+      <div class="panel-content">
+        <h1 class="panel-title">Requests</h1>
+
+        <div class="req-table-header">
+          <div>No.</div>
+          <div>Request</div>
+          <div style="text-align:center">Limit</div>
+          <div class="col-status">State</div>
+        </div>
+
+        <div class="log-container" id="reqList">
+
+          <div class="request-card selected" data-req="0" onclick="reqSelectIdx(0)">
+            <div class="req-num">01</div>
+            <div class="req-quest">Please master the preparation of exquisite cuisine.</div>
+            <div class="req-deadline">None</div>
+            <div class="req-status-wrap">
+              <div class="req-status status-completed">Complete</div>
+            </div>
+          </div>
+
+          <div class="request-card" data-req="1" onclick="reqSelectIdx(1)">
+            <div class="req-num">02</div>
+            <div class="req-quest">Please create a work of art capable of moving hearts.</div>
+            <div class="req-deadline">None</div>
+            <div class="req-status-wrap">
+              <div class="req-status status-inprogress">
+                <span class="check">◆</span>Accepting
+              </div>
+            </div>
+          </div>
+
+          <div class="request-card" data-req="2" onclick="reqSelectIdx(2)">
+            <div class="req-num">03</div>
+            <div class="req-quest">Please establish a Persona-themed digital archive.</div>
+            <div class="req-deadline">None</div>
+            <div class="req-status-wrap">
+              <div class="req-status status-completed">Complete</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="req-task-bar">
+          <div class="req-task-title">Request Details</div>
+          <div class="req-task-desc" id="reqTaskDesc"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer-cta">
+  <div class="cta-text">Next Objective: <span class="cta-highlight">Establish Contact</span> // Seek <span class="cta-highlight">Cooperation</span> // Start <span class="cta-highlight">Social Link</span></div>
+</div>
+
+<div class="hud-bgm">
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+    <div class="hud-key">♪</div>
+    <span class="music-label-off">BGM Off</span>
+    <span class="music-label-on">BGM On</span>
+    <div class="eq-bars">
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+    </div>
+  </button>
+</div>
+
+<audio id="bgMusic" src="cyn.mp3" loop preload="auto"></audio>
+<div class="ticker"></div>
+
+<script>
+  let navMode = 'menu';
+
+  function openTab(tabId, element) {
+    navMode = 'menu';
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    if (element) element.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const menus = Array.from(document.querySelectorAll('.menu-item'));
+    const activeMenuIndex = menus.findIndex(m => m.classList.contains('active'));
+    const activePanelId = document.querySelector('.panel.active').id;
+
+    // Panel navigation (social links and log)
+    if (navMode === 'panel' && activePanelId === 'slinks') {
+      if (e.key === 'ArrowDown') { 
+        e.preventDefault(); 
+        slKeyNav('down'); 
+        return; 
+      }
+      if (e.key === 'ArrowUp') { 
+        e.preventDefault(); 
+        slKeyNav('up'); 
+        return; 
+      }
+      if (e.key === 'ArrowLeft') { 
+        e.preventDefault(); 
+        navMode = 'menu'; 
+        return; 
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        window.open(SL_DATA[slIdx].url, '_blank');
+        return;
+      }
+    }
+
+    if (navMode === 'panel' && activePanelId === 'log') {
+      if (e.key === 'ArrowDown') { 
+        e.preventDefault(); 
+        reqKeyNav('down'); 
+        return; 
+      }
+      if (e.key === 'ArrowUp') { 
+        e.preventDefault(); 
+        reqKeyNav('up'); 
+        return; 
+      }
+      if (e.key === 'ArrowLeft') { 
+        e.preventDefault(); 
+        navMode = 'menu'; 
+        return; 
+      }
+    }
+
+    // Menu navigation
+    if (navMode === 'menu') {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = (activeMenuIndex + 1) % menus.length;
+        openTab(menus[next].getAttribute('onclick').match(/'([^']+)'/)[1], menus[next]);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = (activeMenuIndex - 1 + menus.length) % menus.length;
+        openTab(menus[prev].getAttribute('onclick').match(/'([^']+)'/)[1], menus[prev]);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navMode = 'panel';
+      } else if (e.key === 'Escape') {
+        window.location.href = 'index.html';
+      } else if (e.key === 'Backspace') {
+        window.location.href = 'index.html';
+      }
+    }
+  });
+
+  const bgm = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const MAX_VOL = 0.2;
+  function fadeIn(el, duration) {
+    el.volume = 0; el.play().catch(() => {});
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => { if (el.volume + step >= MAX_VOL) { el.volume = MAX_VOL; clearInterval(timer); } else el.volume = Math.min(MAX_VOL, el.volume + step); }, interval);
+  }
+  function fadeOut(el, duration) {
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => { if (el.volume - step <= 0) { el.volume = 0; el.pause(); clearInterval(timer); } else el.volume = Math.max(0, el.volume - step); }, interval);
+  }
+  function toggleMusic() {
+    if (bgm.paused) { fadeIn(bgm, 800); musicBtn.classList.add('playing'); sessionStorage.setItem('bgmPaused', 'false'); }
+    else { fadeOut(bgm, 800); musicBtn.classList.remove('playing'); sessionStorage.setItem('bgmPaused', 'true'); }
+  }
+  window.addEventListener('beforeunload', () => { sessionStorage.setItem('bgmTime', bgm.currentTime); sessionStorage.setItem('bgmPaused', bgm.paused ? 'true' : 'false'); });
+  window.addEventListener('load', () => {
+    const savedTime = parseFloat(sessionStorage.getItem('bgmTime') || '0');
+    const wasPaused = sessionStorage.getItem('bgmPaused');
+    bgm.currentTime = savedTime;
+    if (wasPaused === null || wasPaused === 'false') { fadeIn(bgm, 800); musicBtn.classList.add('playing'); }
+  });
+
+  const SL_DATA = [
+    { arcana: 'Magician', roman: 'I', rank: 9, name: 'Facebook', desc: 'Primary social platform. Used to connect with friends, share life updates, and maintain bonds across distance.', url: 'https://www.facebook.com/chris.kaizer.carreon.2025' },
+    { arcana: 'Priestess', roman: 'II', rank: 11, name: 'Instagram', desc: 'Visual portfolio and lifestyle platform. A space for aesthetic curation and creative expression.', url: 'https://www.instagram.com/mikhailhitlher/' },
+    { arcana: 'Emperor', roman: 'IV', rank: 19, name: 'X / Twitter', desc: 'Real-time broadcast channel. Commentary, engagement with current events, and epic dialogue.', url: 'https://x.com/KaiHirose6' },
+    { arcana: 'Lovers', roman: 'VI', rank: 42, name: 'Discord', desc: 'Community server and direct messaging hub. Real-time connection and collaborative engagement.', url: 'https://discord.gg/xZygmCvGU' }
+  ];
+
+  let slIdx = 0;
+  let slHovered = 0;
+
+  function slRender() {
+    const slList = document.getElementById('slList');
+    slList.innerHTML = SL_DATA.map((sl, i) => `
+      <div class="sl-card${i === slIdx ? ' selected' : ''}${i === slIdx && navMode === 'panel' ? ' hov' : ''}" data-idx="${i}" onclick="slSelect(${i})">
+        <div class="sl-arcana">${sl.name}</div>
+        <div class="sl-rank" style="text-align:center">${sl.arcana}</div>
+        <div class="sl-link-wrap">
+          <a class="sl-link" href="${sl.url}" target="_blank">▶ Open</a>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('slDetailDesc').textContent = SL_DATA[slIdx].desc;
+  }
+
+  function slSelect(idx) {
+    slIdx = idx;
+    slHovered = idx;
+    slRender();
+  }
+
+  function slKeyNav(dir) {
+    if (dir === 'down') {
+      slIdx = (slIdx + 1) % SL_DATA.length;
+      slHovered = slIdx;
+      slRender();
+    } else if (dir === 'up') {
+      slIdx = (slIdx - 1 + SL_DATA.length) % SL_DATA.length;
+      slHovered = slIdx;
+      slRender();
+    }
+  }
+
+  slRender();
+
+  const REQ_DATA = [
+    { task: "I have become curious about the meals humans devote such effort toward creating. Please demonstrate mastery over both confectioneries and full-course cuisine. I eagerly await the results of your labor." },
+    { task: "I wish to witness a work of art capable of stirring emotion within those who behold it. Create something that embodies your experiences and conveys meaning beyond mere words." },
+    { task: "I request the construction of a digital archive inspired by Personas and the bonds between people. The completed work should serve as proof of your growth and individuality." }
+  ];
+  let reqIdx = 0;
+
+  function reqSelectIdx(idx) {
+    reqIdx = idx;
+    const cards = document.querySelectorAll('#reqList .request-card');
+    cards.forEach((c, i) => c.classList.toggle('selected', i === idx));
+    document.getElementById('reqTaskDesc').textContent = REQ_DATA[idx].task;
+  }
+
+  function reqKeyNav(dir) {
+    const cards = document.querySelectorAll('#reqList .request-card');
+    if (dir === 'down') {
+      reqIdx = (reqIdx + 1) % cards.length;
+    } else if (dir === 'up') {
+      reqIdx = (reqIdx - 1 + cards.length) % cards.length;
+    }
+    reqSelectIdx(reqIdx);
+  }
+
+  reqSelectIdx(0);
+</script>
+</body>
+</html>

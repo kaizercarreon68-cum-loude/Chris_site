@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChrisSite — Main Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="fish.png">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { 
+      --cyan: #00d4ff; 
+      --bg-deep: #050818; 
+      --white: #ffffff; 
+      --dim: #6a8a9a; 
+      --accent-glow: rgba(0, 180, 255, 0.4);
+    }
+    [data-theme="dark-hour"] {
+      --cyan: #1df0a3; 
+      --bg-deep: #020a05; 
+      --white: #a0ffd0;
+      --dim: #3d5a4d;
+      --accent-glow: rgba(29, 240, 163, 0.2);
+    }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-deep); transition: background 1s ease; }
+    .scene { width: 100vw; height: 100vh; position: relative; display: flex; align-items: stretch; overflow: hidden; font-family: 'Rajdhani', sans-serif; }
+    .bg { position: absolute; inset: 0; background-image: url('amc.gif'); background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0; transition: filter 1.2s ease; }
+    [data-theme="dark-hour"] .bg { filter: grayscale(1) sepia(1) hue-rotate(80deg) brightness(0.2) contrast(1.2); }
+    .bg-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(2,5,20,0.05) 0%, rgba(2,5,20,0.55) 45%, rgba(2,5,20,0.90) 70%, rgba(2,5,20,0.97) 100%), linear-gradient(to top, rgba(2,5,20,0.75) 0%, transparent 45%); }
+    .bg-tint { position: absolute; inset: 0; z-index: 2; background: rgba(0,15,50,0.048); }
+    .bg-darkhour-fog { position: absolute; inset: 0; z-index: 4; background: radial-gradient(circle at center, transparent 30%, rgba(2, 10, 5, 0.8) 100%); pointer-events: none; opacity: 0; transition: opacity 1.5s ease; }
+    [data-theme="dark-hour"] .bg-darkhour-fog { opacity: 1; }
+    .bg-grid { position: absolute; inset: 0; z-index: 3; background-image: linear-gradient(var(--cyan) 1px, transparent 1px), linear-gradient(90deg, var(--cyan) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.04; transition: background-image 0.5s ease; }
+    .scanlines { position: absolute; inset: 0; z-index: 20; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px); }
+    #glitch { position: absolute; inset: 0; z-index: 25; background: rgba(29, 240, 163, 0.05); display: none; pointer-events: none; }
+    .right-panel { position: absolute; right: 0; top: 0; bottom: 0; width: 52%; z-index: 10; display: flex; flex-direction: column; justify-content: center; padding: 48px 64px; transition: opacity 1s, transform 1s; }
+    .logo { margin-bottom: 52px; animation: fadeSlideIn 0.8s ease both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+    .logo-badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .logo-p { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; color: var(--cyan); letter-spacing: 4px; opacity: 0.7; transition: color 0.5s ease; }
+    .logo-line { height: 1px; width: 32px; background: var(--cyan); opacity: 0.4; transition: background 0.5s ease; }
+    .logo-title { font-family: 'Orbitron', monospace; font-size: 42px; font-weight: 900; color: var(--white); letter-spacing: 5px; line-height: 1; text-shadow: 0 0 30px var(--accent-glow); display: block; transition: text-shadow 0.5s ease, color 0.5s ease; }
+    .logo-reload-wrap { margin-top: 6px; display: inline-block; background: var(--cyan); padding: 5px 14px 5px 12px; position: relative; transition: background 0.5s ease; }
+    .logo-reload-wrap::before { content: ''; position: absolute; left: -10px; top: 0; bottom: 0; width: 10px; background: inherit; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+    .logo-reload { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900; color: var(--bg-deep); letter-spacing: 4px; line-height: 1; transition: color 0.5s ease; }
+    .menu { display: flex; flex-direction: column; }
+    .menu-item { display: flex; align-items: center; padding: 8px 0; cursor: pointer; background: none; border: none; text-align: left; width: 100%; animation: fadeSlideIn 0.8s ease both; outline: none; }
+    .menu-item:nth-child(1) { animation-delay: 0.10s; }
+    .menu-item:nth-child(2) { animation-delay: 0.18s; }
+    .menu-item:nth-child(3) { animation-delay: 0.26s; }
+    .menu-item:nth-child(4) { animation-delay: 0.34s; }
+    .menu-arrow { width: 20px; font-size: 13px; color: var(--cyan); opacity: 0; transition: opacity 0.15s, color 0.5s ease; flex-shrink: 0; font-family: 'Orbitron', monospace; }
+    .menu-text { font-family: 'Rajdhani', sans-serif; font-size: 42px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--white); transition: color 0.15s, transform 0.12s; line-height: 1.1; }
+    .menu-item.dimmed .menu-text { font-size: 32px; color: var(--dim); transition: color 0.5s ease, font-size 0.2s ease; }
+    .menu-item:hover .menu-text, .menu-item.active .menu-text { color: var(--cyan); transform: translateX(6px); }
+    .menu-item:hover .menu-arrow, .menu-item.active .menu-arrow { opacity: 1; }
+    .dh-log { display: none; font-size: 14px; font-style: italic; color: var(--cyan); opacity: 0.7; margin-top: 4px; letter-spacing: 1px; line-height: 1.2; }
+    [data-theme="dark-hour"] .dh-log { display: block; animation: journalFadeIn 1s ease forwards; }
+    @keyframes journalFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 0.7; transform: translateY(0); } }
+    .corner { position: absolute; z-index: 15; width: 36px; height: 36px; transition: border-color 0.5s ease, opacity 0.8s; }
+    .corner-tl { top: 18px; left: 18px; border-top: 1.5px solid rgba(0,180,255,0.35); border-left: 1.5px solid rgba(0,180,255,0.35); }
+    .corner-tr { top: 18px; right: 18px; border-top: 1.5px solid rgba(0,180,255,0.35); border-right: 1.5px solid rgba(0,180,255,0.35); }
+    .corner-bl { bottom: 18px; left: 18px; border-bottom: 1.5px solid rgba(0,180,255,0.35); border-left: 1.5px solid rgba(0,180,255,0.35); }
+    .corner-br { bottom: 18px; right: 18px; border-bottom: 1.5px solid rgba(0,180,255,0.35); border-right: 1.5px solid rgba(0,180,255,0.35); }
+    [data-theme="dark-hour"] .corner-tl, [data-theme="dark-hour"] .corner-tr, [data-theme="dark-hour"] .corner-bl, [data-theme="dark-hour"] .corner-br { border-color: rgba(29, 240, 163, 0.25); }
+    .clock-widget { position: absolute; top: 48px; right: 64px; font-family: 'Orbitron', monospace; font-weight: 700; color: var(--cyan); opacity: 0; pointer-events: none; letter-spacing: 2px; transition: opacity 1s ease, color 0.5s ease; z-index: 10; }
+    .clock-widget span { font-size: 12px; margin-left: 4px; opacity: 0.6; }
+    [data-theme="dark-hour"] .clock-widget { opacity: 0.65; animation: clockFlicker 4s infinite; }
+    @keyframes clockFlicker { 0%, 100% { opacity: 0.65; } 48% { opacity: 0.65; } 50% { opacity: 0.2; } 52% { opacity: 0.65; } }
+    .hud-status-dh { display: none; font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; color: var(--cyan); letter-spacing: 1px; border: 1px solid var(--cyan); padding: 3px 10px; margin-right: 12px; }
+    [data-theme="dark-hour"] .hud-status-dh { display: inline-block; animation: alertPulse 2s infinite alternate; }
+    @keyframes alertPulse { 0% { opacity: 0.4; border-color: rgba(29, 240, 163, 0.3); } 100% { opacity: 0.9; border-color: rgba(29, 240, 163, 1); box-shadow: 0 0 8px rgba(29, 240, 163, 0.2); } }
+    .hud { position: absolute; bottom: 20px; right: 24px; z-index: 15; display: flex; gap: 20px; align-items: center; transition: opacity 0.8s; }
+    .hud-btn { display: flex; align-items: center; gap: 7px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.38); text-transform: uppercase; cursor: pointer; }
+    .hud-key { width: 22px; height: 22px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: border-color 0.2s, box-shadow 0.2s, color 0.2s; }
+    .music-btn { display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.38); text-transform: uppercase; padding: 4px 6px; transition: color 0.2s; }
+    .music-btn:hover { color: rgba(255,255,255,0.7); }
+    .music-btn.playing { color: var(--cyan); }
+    .music-btn.playing .hud-key { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 8px var(--accent-glow); }
+    .music-label-off { display: inline; } .music-label-on { display: none; }
+    .music-btn.playing .music-label-off { display: none; }
+    .music-btn.playing .music-label-on { display: inline; }
+    .eq-bars { display: none; align-items: flex-end; gap: 2px; height: 14px; }
+    .music-btn.playing .eq-bars { display: flex; }
+    .eq-bar { width: 3px; background: var(--cyan); border-radius: 1px; animation: eqBounce 0.8s ease-in-out infinite alternate; transition: background 0.5s ease; }
+    .eq-bar:nth-child(1) { animation-duration: 0.6s; animation-delay: 0.00s; }
+    .eq-bar:nth-child(2) { animation-duration: 0.9s; animation-delay: 0.15s; }
+    .eq-bar:nth-child(3) { animation-duration: 0.7s; animation-delay: 0.30s; }
+    .eq-bar:nth-child(4) { animation-duration: 1.0s; animation-delay: 0.05s; }
+    @keyframes eqBounce { from { height: 3px; } to { height: 14px; } }
+    .ticker { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; z-index: 15; background: linear-gradient(to right, transparent, var(--cyan), transparent); animation: tickerPulse 4s ease-in-out infinite; transition: background 0.5s ease; }
+    @keyframes tickerPulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+
+    #creditsOverlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: #000; display: none;
+      opacity: 0; transition: opacity 2s ease;
+      overflow: hidden; font-family: 'Rajdhani', sans-serif;
+    }
+    #creditsOverlay.active { display: block; opacity: 1; }
+    
+    .credits-bg {
+      position: absolute; inset: 0;
+      background-image: url('amc.gif'); background-size: cover; background-position: center;
+      filter: brightness(0.15) saturate(0.5) blur(5px);
+      transform: scale(1.1); animation: cameraDrift 60s linear infinite;
+    }
+    @keyframes cameraDrift { 0% { transform: scale(1.1) translate(0, 0); } 50% { transform: scale(1.2) translate(-20px, 10px); } 100% { transform: scale(1.1) translate(0, 0); } }
+
+    .credits-container {
+      position: relative; z-index: 102;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .credits-scroll {
+      position: absolute; top: 100%;
+      width: 80%; max-width: 600px;
+      text-align: center; color: var(--white);
+    }
+    
+    .credit-section { margin-bottom: 160px; }
+    .credit-header { font-family: 'Orbitron'; font-size: 12px; letter-spacing: 4px; color: var(--cyan); margin-bottom: 15px; opacity: 0.8; }
+    .credit-name { font-size: 32px; font-weight: 700; letter-spacing: 2px; }
+    .credit-sub { font-size: 18px; opacity: 0.6; margin-top: 5px; }
+
+    .dev-note {
+      font-style: italic; color: var(--dim); margin: 140px 0;
+      font-size: 16px; position: relative; display: inline-block;
+      padding: 30px; border-left: 2px solid var(--cyan); background: rgba(0,212,255,0.03);
+      width: 90%;
+    }
+    .dev-note::before { content: '[ DEV NOTE ]'; position: absolute; top: -10px; left: 10px; font-family: 'Orbitron'; font-size: 10px; color: var(--cyan); }
+
+    .final-thankyou {
+      height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      opacity: 0; transition: opacity 3s ease;
+    }
+    .final-thankyou.visible { opacity: 1; }
+    .thanks-text { font-family: 'Orbitron'; font-size: 24px; letter-spacing: 5px; text-align: center; line-height: 2; }
+    .thanks-signature { margin-top: 30px; font-size: 18px; color: var(--cyan); }
+
+  </style>
+</head>
+<body>
+<div class="scene" id="mainUI">
+  <div class="bg"></div>
+  <div class="bg-overlay"></div>
+  <div class="bg-darkhour-fog"></div>
+  <div class="bg-tint"></div>
+  <div class="bg-grid"></div>
+  <div id="glitch"></div>
+
+  <div class="clock-widget">00:00<span>AM</span></div>
+
+  <div class="right-panel">
+    <div class="logo">
+      <div class="logo-badge"><span class="logo-p">CKC</span><div class="logo-line"></div></div>
+      <span class="logo-title">CHRIS KAIZER</span>
+      <div><div class="logo-reload-wrap"><span class="logo-reload">CARREON</span></div></div>
+    </div>
+    <nav class="menu">
+      <button class="menu-item active" onclick="selectItem(this); handleNavigation('newgame.html')">
+        <span class="menu-arrow">▶</span>
+        <div>
+          <span class="menu-text">PROFILE</span>
+          <p class="dh-log">"People never really know who we our inside."</p>
+        </div>
+      </button>
+      <button class="menu-item" onclick="selectItem(this); handleNavigation('loadgame.html')">
+        <span class="menu-arrow">▶</span>
+        <div>
+          <span class="menu-text">INTERESTS</span>
+          <p class="dh-log">"I wonder if people truly understand each other."</p>
+        </div>
+      </button>
+      <button class="menu-item" onclick="selectItem(this); handleNavigation('config.html')">
+        <span class="menu-arrow">▶</span>
+        <div>
+          <span class="menu-text">OTHER INFO</span>
+          <p class="dh-log">[ MEMORY FRAGMENT DETECTED / USER EMOTIONAL STATE: UNSTABLE ]</p>
+        </div>
+      </button>
+      <button class="menu-item dimmed" onclick="selectItem(this); toggleDarkHour()">
+        <span class="menu-arrow">▶</span><span class="menu-text" id="episodeBtnText">Change Episode</span>
+      </button>
+    </nav>
+  </div>
+  
+  <div class="scanlines"></div>
+  <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+  
+  <div class="hud">
+    <div class="hud-status-dh">[ SIGNAL LOST ]</div>
+    <div class="hud-btn" onclick="startCredits()"><div class="hud-key">♛</div> Credits</div>
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+      <div class="hud-key">♪</div>
+      <span class="music-label-off">BGM Off</span>
+      <span class="music-label-on">BGM On</span>
+      <div class="eq-bars">
+        <div class="eq-bar"></div><div class="eq-bar"></div>
+        <div class="eq-bar"></div><div class="eq-bar"></div>
+      </div>
+    </button>
+  </div>
+  <div class="ticker"></div>
+</div>
+
+<div id="creditsOverlay">
+  <div class="credits-bg"></div>
+  <div class="scanlines"></div>
+  <div class="credits-container">
+    <div class="credits-scroll" id="creditsScroll">
+      
+      <div class="credit-section">
+        <p class="credit-header">DIRECTOR</p>
+        <h2 class="credit-name">Chris Kaizer Carreon</h2>
+        <p class="credit-sub">"Believe in others who believe in you"</p>
+      </div>
+
+      <div class="dev-note">
+        Most of this site was built late at night while the world was quiet.
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">Producer</p>
+        <h2 class="credit-name">Chris Kaizer Carreon</h2>
+        <p class="credit-sub" style="color: yellow;">Given an award for being humble.<br>yellow font btw✌️.</p>
+      </div>
+
+      <div class="dev-note">
+        It was really fun making this site on my own<br>(with a little bit of help from various youtubers)
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">Executive Producer</p>
+        <h2 class="credit-name">Chris Kaizer Carreon</h2>
+        <p class="credit-sub">*Belief is not a matter of choice, but of conviction.*</p>
+      </div>
+
+      <div class="dev-note">
+        If you're reading this I want you to know that I hunger for burgers while making this.
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">Writer</p>
+        <h2 class="credit-name">Chris Kaizer Carreon</h2>
+        <p class="credit-sub">"Amor fati describes a mindset that embraces everything in life<br>—including suffering and loss as a good, necessary, and fuel for potential."</p>
+      </div>
+
+      <div class="dev-note">
+        You're not alone it's alright to ask for somebody's help.
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">Lead Designer</p>
+        <h2 class="credit-name">Chris Kaizer Carreon</h2>
+        <p class="credit-sub">Inspired by those videos I kept seing on IG.</p>
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">VISUAL INSPIRATION</p>
+        <h2 class="credit-name">Persona 3/P3R Aesthetics</h2>
+        <p class="credit-sub">Early 2000s PSP games</p>
+      </div>
+
+      <div class="credit-section">
+        <p class="credit-header">SPECIAL THANKS</p>
+        <h2 class="credit-name">Late-night Creativity</h2>
+        <h2 class="credit-name">Homelander</h2>
+        <h2 class="credit-name">David Hasselhoff</h2>
+        <h2 class="credit-name">Goldship and Big Red Farm</h2>
+        <h2 class="credit-name">Snoop Dogg</h2>
+        <h2 class="credit-name">ADO</h2>
+        <h2 class="credit-name">Son Goku and Family</h2>
+        <h2 class="credit-name">Anakin Skywalker</h2>
+        <h2 class="credit-name">The People Who Stayed</h2>
+      </div>
+
+      <div class="dev-note">
+        There are versions of ourselves we only show to the dark.
+      </div>
+
+      <div style="height: 200px;"></div>
+      
+      <div class="final-thankyou" id="finalThankYou">
+        <p class="thanks-text">Thank you for spending time in my world.<br>Even if only briefly.</p>
+        <p class="thanks-signature">— Chris Kaizer Carreon</p>
+      </div>
+
+      <div style="height: 100px;"></div>
+    </div>
+  </div>
+</div>
+<audio id="bgMusic" src="cyn.mp3" loop preload="auto"></audio>
+<audio id="creditsMusic" src="credms.mp3" loop preload="auto"></audio>
+<script>
+  let isDarkHour = false;
+  const body = document.body;
+  const audio = document.getElementById('bgMusic');
+  const creditsAudio = document.getElementById('creditsMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const MAX_VOL = 0.2;
+  function selectItem(el) {
+    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function handleNavigation(targetUrl) {
+    if (isDarkHour) return;
+    window.location.href = targetUrl;
+  }
+  function fadeIn(el, duration) {
+    el.volume = 0; el.play().catch(() => {});
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => {
+      if (el.volume + step >= MAX_VOL) { el.volume = MAX_VOL; clearInterval(timer); }
+      else el.volume = Math.min(MAX_VOL, el.volume + step);
+    }, interval);
+  }
+  function fadeOut(el, duration, callback) {
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => {
+      if (el.volume - step <= 0) { 
+        el.volume = 0; 
+        el.pause(); 
+        clearInterval(timer); 
+        if (callback) callback();
+      }
+      else el.volume = Math.max(0, el.volume - step);
+    }, interval);
+  }
+  function toggleMusic() {
+    if (audio.paused) { fadeIn(audio, 800); musicBtn.classList.add('playing'); sessionStorage.setItem('bgmPaused', 'false'); }
+    else { fadeOut(audio, 800); musicBtn.classList.remove('playing'); sessionStorage.setItem('bgmPaused', 'true'); }
+  }
+  function startCredits() {
+    const overlay = document.getElementById('creditsOverlay');
+    const mainUI = document.getElementById('mainUI');
+    const scroll = document.getElementById('creditsScroll');
+    const finalMsg = document.getElementById('finalThankYou');
+    const isMusicPlaying = !audio.paused;
+    if (isMusicPlaying) fadeOut(audio, 1500);
+    mainUI.style.opacity = '0';
+    document.querySelectorAll('.corner, .hud, .ticker').forEach(el => el.style.opacity = '0');
+    setTimeout(() => {
+      overlay.classList.add('active');
+      creditsAudio.currentTime = 0;
+      fadeIn(creditsAudio, 2000);
+      let scrollPos = window.innerHeight;
+      const scrollSpeed = 0.6; 
+      function animateScroll() {
+        scrollPos -= scrollSpeed;
+        scroll.style.top = scrollPos + 'px';
+        const rect = finalMsg.getBoundingClientRect();
+        const screenCenter = window.innerHeight / 2;
+        const msgCenter = rect.top + (rect.height / 2);
+        if (rect.top < window.innerHeight * 0.75 && !finalMsg.classList.contains('visible')) {
+          finalMsg.classList.add('visible');
+        }
+        if (msgCenter <= screenCenter) {
+          endCredits();
+          return;
+        }
+        if (overlay.classList.contains('active')) requestAnimationFrame(animateScroll);
+      }
+      requestAnimationFrame(animateScroll);
+    }, 2000);
+  }
+  function endCredits() {
+    fadeOut(creditsAudio, 2500, () => {
+      const glitch = document.getElementById('glitch');
+      glitch.style.display = 'block';
+      glitch.style.background = 'rgba(29, 240, 163, 0.4)';
+      setTimeout(() => { location.reload(); }, 150);
+    });
+  }
+  function toggleDarkHour() {
+    const glitch = document.getElementById('glitch');
+    glitch.style.display = 'block';
+    audio.playbackRate = 0.65; 
+    setTimeout(() => {
+      isDarkHour = !isDarkHour;
+      if (isDarkHour) {
+        body.setAttribute('data-theme', 'dark-hour');
+        document.getElementById('episodeBtnText').innerText = "Return to Reality";
+        audio.playbackRate = 0.85; 
+      } else {
+        body.removeAttribute('data-theme');
+        document.getElementById('episodeBtnText').innerText = "Change Episode";
+        audio.playbackRate = 1.0; 
+      }
+      setTimeout(() => { glitch.style.display = 'none'; }, 250);
+    }, 600);
+  }
+  document.addEventListener('keydown', (e) => {
+    const items = [...document.querySelectorAll('.menu-item')];
+    const idx = items.findIndex(i => i.classList.contains('active'));
+    if (e.key === 'ArrowDown') { e.preventDefault(); selectItem(items[(idx + 1) % items.length]); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); selectItem(items[(idx - 1 + items.length) % items.length]); }
+    if (e.key === 'Enter')     { items[idx].click(); }
+  });
+  window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('bgmTime', audio.currentTime);
+    sessionStorage.setItem('bgmPaused', audio.paused ? 'true' : 'false');
+  });
+  window.addEventListener('load', () => {
+    const savedTime = parseFloat(sessionStorage.getItem('bgmTime') || '0');
+    const wasPaused = sessionStorage.getItem('bgmPaused');
+    audio.currentTime = savedTime;
+    if (wasPaused === null || wasPaused === 'false') {
+      fadeIn(audio, 800); musicBtn.classList.add('playing');
+    }
+  });
+  let inputBuffer = "";
+  document.addEventListener('keydown', (e) => {
+    inputBuffer += e.key.toLowerCase();
+    if (inputBuffer.endsWith("darkhour")) { toggleDarkHour(); inputBuffer = ""; }
+    if (inputBuffer.length > 20) inputBuffer = inputBuffer.slice(-10);
+    if (e.key === '2' && window.lastKeyPressed === '1') toggleDarkHour();
+    window.lastKeyPressed = e.key;
+    if (e.key === "Shift" && !window.shiftHoldTimer) {
+      window.shiftHoldTimer = setTimeout(() => { toggleDarkHour(); }, 3000);
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key === "Shift") { clearTimeout(window.shiftHoldTimer); window.shiftHoldTimer = null; }
+  });
+</script>
+</body>
+</html>

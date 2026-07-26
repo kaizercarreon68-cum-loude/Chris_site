@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChrisSite - Interests</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="fish.png">
+  <style>
+    :root { --cyan: #00d4ff; --bg-deep: #050818; --white: #ffffff; --panel-bg: rgba(5, 8, 24, 0.8); }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-deep); font-family: 'Rajdhani', sans-serif; color: var(--white); }
+    .bg { position: absolute; inset: 0; background-image: url('persona3c.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0; }
+    .bg-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(5,8,24,0.9) 0%, rgba(5,8,24,0.2) 35%, rgba(5,8,24,0.2) 65%, rgba(5,8,24,0.8) 100%); }
+    .bg-grid { position: absolute; inset: 0; z-index: 2; background-image: linear-gradient(rgba(0,180,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,180,255,0.04) 1px, transparent 1px); background-size: 48px 48px; }
+    .scanlines { position: absolute; inset: 0; z-index: 20; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px) skewX(-15deg); } to { opacity: 1; transform: translateY(0) skewX(-15deg); } }
+    @keyframes cardFade { from { opacity: 0; transform: translateY(20px) skewX(-5deg); } to { opacity: 1; transform: translateY(0) skewX(-5deg); } }
+    .corner-tl { top:18px; left:18px; border-top:1.5px solid rgba(0,180,255,0.35); border-left:1.5px solid rgba(0,180,255,0.35); }
+    .corner-tr { top:18px; right:18px; border-top:1.5px solid rgba(0,180,255,0.35); border-right:1.5px solid rgba(0,180,255,0.35); }
+    .corner-bl { bottom:18px; left:18px; border-bottom:1.5px solid rgba(0,180,255,0.35); border-left:1.5px solid rgba(0,180,255,0.35); }
+    .corner-br { bottom:18px; right:18px; border-bottom:1.5px solid rgba(0,180,255,0.35); border-right:1.5px solid rgba(0,180,255,0.35); }
+    .back-btn { position: absolute; top: 28px; left: 32px; z-index: 30; background: none; border: 1.5px solid rgba(0,212,255,0.4); color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; padding: 8px 18px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+    .back-btn:hover { background: var(--cyan); color: var(--bg-deep); }
+    .nav-btn { position: fixed; bottom: 28px; right: 32px; z-index: 30; background: none; border: 1.5px solid rgba(0,212,255,0.4); color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px; padding: 10px 22px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+    .nav-btn:hover, .nav-btn.focused { background: var(--cyan); color: var(--bg-deep); }
+    .container { position: relative; z-index: 10; display: flex; height: 100vh; padding: 60px 80px; gap: 50px; }
+    .list-section { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .category-label { font-family: 'Orbitron', sans-serif; color: var(--cyan); font-size: 14px; letter-spacing: 5px; margin-bottom: 25px; text-transform: uppercase; opacity: 0.8; animation: fadeUp 0.7s ease both; }
+    .interest-item { padding: 18px 30px; margin: 8px 0; background: rgba(0,30,60,0.4); backdrop-filter: blur(4px); transform: skewX(-15deg); cursor: pointer; transition: all 0.3s cubic-bezier(0.25,1,0.5,1); border: 1px solid rgba(0,212,255,0.15); animation: fadeUp 0.7s ease both; outline: none; }
+    .interest-item:nth-child(2) { animation-delay: 0.1s; } .interest-item:nth-child(3) { animation-delay: 0.2s; } .interest-item:nth-child(4) { animation-delay: 0.3s; }
+    .interest-item:hover, .interest-item.active { background: var(--cyan); color: var(--bg-deep); transform: translateX(20px) skewX(-15deg); border: 1px solid var(--white); box-shadow: -10px 0 20px rgba(0,212,255,0.3); }
+    .interest-item h2 { font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transform: skewX(15deg); }
+    .display-section { flex: 1.2; position: relative; display: flex; align-items: center; justify-content: center; }
+    .card { width: 100%; min-height: 60%; background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid rgba(0,212,255,0.2); position: relative; transform: skewX(-5deg); padding: 40px; animation: cardFade 0.8s 0.2s ease both; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--cyan), transparent); }
+    .card-content { transform: skewX(5deg); }
+    .card-title { font-family: 'Orbitron', sans-serif; font-size: 38px; line-height: 1.1; margin-bottom: 10px; color: var(--white); }
+    .card-sub { font-size: 13px; font-weight: 700; color: var(--cyan); font-family: 'Orbitron', sans-serif; margin-bottom: 20px; display: inline-block; letter-spacing: 4px; opacity: 0.8; }
+    .card-desc { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.7); margin-bottom: 20px; }
+    .music-player { margin-top: 10px; padding: 15px; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); display: none; flex-direction: column; gap: 15px; }
+    .video-container { margin-top: 10px; width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid rgba(0,212,255,0.3); display: none; overflow: hidden; }
+    video { width: 100%; height: 100%; object-fit: cover; }
+    .video-container { position: relative; }
+   .video-credit { position: absolute; bottom: 8px;right: 12px;font-family: 'Orbitron', sans-serif;font-size: 10px;letter-spacing: 1px;color: rgba(255,255,255,0.75);background: rgba(0,0,0,0.5);padding: 3px 8px;pointer-events: none;}
+    .player-controls { display: flex; align-items: center; gap: 20px; }
+    #play-pause { background: var(--cyan); color: var(--bg-deep); border: none; width: 40px; height: 40px; font-size: 16px; cursor: pointer; clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%); }
+    .progress-container { flex-grow: 1; height: 4px; background: rgba(255,255,255,0.1); position: relative; cursor: pointer; }
+    #progress-bar { height: 100%; background: var(--cyan); width: 0%; box-shadow: 0 0 10px var(--cyan); }
+    .time-stamp { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan); }
+    .games-label { font-family: 'Orbitron', sans-serif; color: var(--cyan); font-size: 12px; letter-spacing: 4px; margin-top: 28px; margin-bottom: 12px; text-transform: uppercase; opacity: 0.7; animation: fadeUp 0.7s 0.4s ease both; }
+    .games-grid { display: flex; gap: 10px; }
+    .game-card { width: 88px; height: 88px; position: relative; border: 1px solid rgba(0,212,255,0.2); overflow: hidden; cursor: pointer; transition: all 0.25s ease; animation: fadeUp 0.7s ease both; text-decoration: none; display: block; }
+    .game-card:nth-child(1) { animation-delay: 0.45s; } .game-card:nth-child(2) { animation-delay: 0.52s; } .game-card:nth-child(3) { animation-delay: 0.59s; }
+    .game-card img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform 0.3s ease; }
+    .game-card:hover img, .game-card.focused img { transform: scale(1.08); }
+    .game-card:hover, .game-card.focused { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0,212,255,0.5); }
+    .game-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,212,255,0.88) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s; display: flex; align-items: flex-end; padding: 6px 7px; }
+    .game-card:hover .game-card-overlay, .game-card.focused .game-card-overlay { opacity: 1; }
+    .game-card-name { font-family: 'Orbitron', sans-serif; font-size: 7px; font-weight: 700; color: var(--bg-deep); letter-spacing: 1px; text-transform: uppercase; line-height: 1.3; }
+    .hud-bgm { position: fixed; bottom: 28px; left: 32px; z-index: 30; display: flex; align-items: center; gap: 7px; }
+    .hud-key { width: 22px; height: 22px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: border-color 0.2s, box-shadow 0.2s, color 0.2s; }
+    .music-btn { display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.38); text-transform: uppercase; padding: 4px 6px; transition: color 0.2s; }
+    .music-btn:hover { color: rgba(255,255,255,0.7); }
+    .music-btn.playing { color: var(--cyan); }
+    .music-btn.playing .hud-key { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 8px rgba(0,212,255,0.4); }
+    .music-label-off { display: inline; } .music-label-on { display: none; }
+    .music-btn.playing .music-label-off { display: none; }
+    .music-btn.playing .music-label-on { display: inline; }
+    .eq-bars { display: none; align-items: flex-end; gap: 2px; height: 14px; }
+    .music-btn.playing .eq-bars { display: flex; }
+    .eq-bar { width: 3px; background: var(--cyan); border-radius: 1px; animation: eqBounce 0.8s ease-in-out infinite alternate; }
+    .eq-bar:nth-child(1) { animation-duration: 0.6s; animation-delay: 0.00s; }
+    .eq-bar:nth-child(2) { animation-duration: 0.9s; animation-delay: 0.15s; }
+    .eq-bar:nth-child(3) { animation-duration: 0.7s; animation-delay: 0.30s; }
+    .eq-bar:nth-child(4) { animation-duration: 1.0s; animation-delay: 0.05s; }
+    @keyframes eqBounce { from { height: 3px; } to { height: 14px; } }
+
+    @media (orientation: portrait), (max-width: 768px) {
+      body { overflow-y: auto; height: auto; }
+      .container { flex-direction: column; height: auto; min-height: 100vh; padding: 80px 24px 100px; gap: 32px; }
+      .list-section { flex: none; width: 100%; justify-content: flex-start; }
+      .category-label { font-size: 11px; letter-spacing: 4px; margin-bottom: 16px; }
+      .interest-item { padding: 14px 22px; margin: 6px 0; }
+      .interest-item h2 { font-size: 20px; letter-spacing: 1px; }
+      .interest-item:hover, .interest-item.active { transform: translateX(10px) skewX(-15deg); }
+      .games-label { font-size: 11px; margin-top: 20px; margin-bottom: 10px; }
+      .games-grid { flex-wrap: wrap; gap: 10px; }
+      .game-card { width: 72px; height: 72px; }
+      .display-section { flex: none; width: 100%; align-items: flex-start; }
+      .card { position: relative; transform: skewX(-3deg); padding: 28px 24px; min-height: unset; }
+      .card-content { transform: skewX(3deg); }
+      .card-title { font-size: 26px; }
+      .card-sub { font-size: 11px; letter-spacing: 3px; }
+      .card-desc { font-size: 15px; }
+      .nav-btn { bottom: 16px; right: 16px; padding: 8px 16px; font-size: 10px; }
+      .back-btn { top: 16px; left: 16px; padding: 7px 14px; font-size: 10px; }
+      .hud-bgm { bottom: 16px; left: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg"></div><div class="bg-overlay"></div><div class="bg-grid"></div><div class="scanlines"></div>
+<button class="back-btn" onclick="window.location.href='index.html'">◀ Back</button>
+<button class="nav-btn" onclick="window.location.href='config.html'">Next <span>▶</span></button>
+
+<div class="container">
+  <div class="list-section">
+    <div class="category-label">Favorite Media</div>
+    <div class="interest-item active" onclick="updateDisplay('Creep','MUSIC','Radiohead\'s Creep is a 1992 grunge anthem about intense self-loathing and social alienation characterized by angst-ridden lyrics, distorted guitar, and themes of unrequited love and self-loathing. It captures the narrator\'s feelings of insecurity and alienation, admiring a woman from afar while feeling unworthy and calling himself a creep and a weirdo.','creep.mp3')"><h2>Creep</h2></div>
+    <div class="interest-item" onclick="updateDisplay('JoJo\'s Bizarre Adventure','ANIME','JoJo\'s Bizarre Adventure is a generational saga following the Joestar family, whose members are destined to fight supernatural evils across distinct, self-contained parts.','jojo.mp4')"><h2>JoJo's Bizarre Adventure</h2></div>
+    <div class="interest-item" onclick="updateDisplay('Interstellar','MOVIE','A journey through space and time — Interstellar (2014) is a sci-fi epic directed by Christopher Nolan about a team of astronauts navigating a wormhole near Saturn to find a new, habitable planet for humanity.','interstellar.mp4','Video credits to: The Cinematic Constructor')"><h2>Interstellar</h2></div>
+    <div class="interest-item" onclick="updateDisplay('Pasilyo','MUSIC','A soulful OPM anthem by SunKissed Lola. It uses vivid imagery of a wedding \'pasilyo\' (aisle) to express the intense desire to grow old with a significant other, frequently repeating \'Ikaw\' (You) to emphasize one true love.','pasilyo.mp3')"><h2>Pasilyo</h2></div>
+    <div class="games-label">Favorite Games</div>
+    <div class="games-grid" id="games-grid">
+      <a class="game-card" href="https://www.devilmaycry.com/5/us/character/" target="_blank"><img src="dmc5.webp" alt="Devil May Cry 5"><div class="game-card-overlay"><span class="game-card-name">Devil May Cry 5</span></div></a>
+      <a class="game-card" href="https://asia.sega.com/p3r/en/" target="_blank"><img src="p3r.png" alt="Persona 3 Reload"><div class="game-card-overlay"><span class="game-card-name">Persona 3 Reload</span></div></a>
+      <a class="game-card" href="https://www.hoyolab.com/home" target="_blank"><img src="hsr1.webp" alt="Honkai: Star Rail"><div class="game-card-overlay"><span class="game-card-name">Honkai: Star Rail</span></div></a>
+      <a class="game-card" href="https://www.minecraft.net/en-us" target="_blank"><img src="minecraft.png" alt="Minecraft"><div class="game-card-overlay"><span class="game-card-name">Minecraft</span></div></a>
+    </div>
+  </div>
+  <div class="display-section">
+    <div class="card" id="display-card">
+      <div class="card-content">
+        <h1 id="item-title" class="card-title">Creep</h1>
+        <div id="item-type" class="card-sub">MUSIC</div>
+        <p id="item-desc" class="card-desc">Radiohead's Creep is a 1992 grunge anthem about intense self-loathing and social alienation.</p>
+        <div class="music-player" id="player-ui">
+          <audio id="audio-element"><source id="audio-source" src="creep.mp3"></audio>
+          <div class="player-controls">
+            <button id="play-pause">▶</button>
+            <div class="progress-container" id="progress-container"><div id="progress-bar"></div></div>
+            <span class="time-stamp" id="curr-time">0:00</span>
+          </div>
+        </div>
+        <div class="video-container" id="video-ui">
+        <video id="video-element" controls><source id="video-source" src="" type="video/mp4"></video>
+        <div class="video-credit" id="video-credit"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hud-bgm">
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+    <div class="hud-key">♪</div>
+    <span class="music-label-off">BGM Off</span>
+    <span class="music-label-on">BGM On</span>
+    <div class="eq-bars">
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+    </div>
+  </button>
+</div>
+
+<audio id="bgMusic" src="cyn.mp3" loop preload="auto"></audio>
+
+<script>
+  const mediaAudio = document.getElementById('audio-element');
+  const video = document.getElementById('video-element');
+  const playBtn = document.getElementById('play-pause');
+  const progressBar = document.getElementById('progress-bar');
+  const progressContainer = document.getElementById('progress-container');
+  const timeStamp = document.getElementById('curr-time');
+
+  function updateDisplay(title, type, desc, file, credit) {
+  mediaAudio.pause(); video.pause();
+  document.querySelectorAll('.interest-item').forEach(el => {
+    el.classList.remove('active');
+    if (el.querySelector('h2').textContent.trim() === title) el.classList.add('active');
+  });
+  const card = document.getElementById('display-card');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'cardFade 0.4s ease both';
+  document.getElementById('item-title').innerText = title;
+  document.getElementById('item-type').innerText = type;
+  document.getElementById('item-desc').innerText = desc;
+  const playerUI = document.getElementById('player-ui');
+  const videoUI = document.getElementById('video-ui');
+  const creditEl = document.getElementById('video-credit');
+  if (type === 'MUSIC') {
+    playerUI.style.display = 'flex'; videoUI.style.display = 'none';
+    if (file) { document.getElementById('audio-source').src = file; mediaAudio.load(); playBtn.innerText = '▶'; progressBar.style.width = '0%'; }
+  } else {
+    playerUI.style.display = 'none'; videoUI.style.display = 'block';
+    if (file) { document.getElementById('video-source').src = file; video.load(); }
+    creditEl.innerText = credit || '';
+    creditEl.style.display = credit ? 'block' : 'none';
+  }
+}
+
+  playBtn.addEventListener('click', () => {
+    if (mediaAudio.paused) { mediaAudio.play(); playBtn.innerText = 'II'; }
+    else { mediaAudio.pause(); playBtn.innerText = '▶'; }
+  });
+  mediaAudio.addEventListener('timeupdate', () => {
+    const percent = (mediaAudio.currentTime / mediaAudio.duration) * 100;
+    progressBar.style.width = percent + '%';
+    let mins = Math.floor(mediaAudio.currentTime / 60), secs = Math.floor(mediaAudio.currentTime % 60);
+    timeStamp.innerText = mins + ':' + (secs < 10 ? '0' + secs : secs);
+  });
+  progressContainer.addEventListener('click', (e) => {
+    mediaAudio.currentTime = (e.offsetX / progressContainer.clientWidth) * mediaAudio.duration;
+  });
+
+  updateDisplay('Creep','MUSIC',"Radiohead's Creep is a 1992 grunge anthem about intense self-loathing and social alienation characterized by angst-ridden lyrics, distorted guitar, and themes of unrequited love and self-loathing. It captures the narrator's feelings of insecurity and alienation, admiring a woman from afar while feeling unworthy and calling himself a creep and a weirdo.",'creep.mp3');
+
+  let focusIndex = 0;
+  function getFocusables() { return [...document.querySelectorAll('.interest-item'), ...document.querySelectorAll('.game-card'), document.querySelector('.nav-btn')]; }
+  function applyFocus(index) {
+    const all = getFocusables(); focusIndex = (index + all.length) % all.length;
+    const target = all[focusIndex];
+    document.querySelectorAll('.interest-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.game-card').forEach(el => el.classList.remove('focused'));
+    document.querySelector('.nav-btn').classList.remove('focused');
+    if (target.classList.contains('interest-item')) target.click();
+    else if (target.classList.contains('game-card')) target.classList.add('focused');
+    else target.classList.add('focused');
+  }
+  document.addEventListener('keydown', (e) => {
+    const all = getFocusables();
+    if (e.key === 'ArrowDown') { e.preventDefault(); applyFocus(focusIndex + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); applyFocus(focusIndex - 1); }
+    else if (e.key === 'ArrowRight') { const t = all[focusIndex]; if (t.classList.contains('game-card')) { const gi = [...document.querySelectorAll('.game-card')].indexOf(t); if (gi < document.querySelectorAll('.game-card').length - 1) applyFocus(focusIndex + 1); } }
+    else if (e.key === 'ArrowLeft') { const t = all[focusIndex]; if (t.classList.contains('game-card')) { const gi = [...document.querySelectorAll('.game-card')].indexOf(t); if (gi > 0) applyFocus(focusIndex - 1); } }
+    else if (e.key === 'Enter') {
+      const t = all[focusIndex];
+      if (t.classList.contains('nav-btn')) window.location.href = 'config.html';
+      else if (t.classList.contains('game-card')) window.open(t.href, '_blank');
+      else if (document.getElementById('video-ui').style.display === 'block') video.paused ? video.play() : video.pause();
+      else playBtn.click();
+    }
+    else if (e.key === 'Escape') window.location.href = 'index.html';
+    else if (e.key === 'Backspace') window.location.href = 'newgame.html';
+  });
+
+  const bgm = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const MAX_VOL = 0.2;
+
+  function fadeIn(el, duration) {
+    el.volume = 0; el.play().catch(() => {});
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => {
+      if (el.volume + step >= MAX_VOL) { el.volume = MAX_VOL; clearInterval(timer); }
+      else el.volume = Math.min(MAX_VOL, el.volume + step);
+    }, interval);
+  }
+  function fadeOut(el, duration) {
+    const step = 0.02, interval = duration / (MAX_VOL / step);
+    const timer = setInterval(() => {
+      if (el.volume - step <= 0) { el.volume = 0; el.pause(); clearInterval(timer); }
+      else el.volume = Math.max(0, el.volume - step);
+    }, interval);
+  }
+  function toggleMusic() {
+    if (bgm.paused) { fadeIn(bgm, 800); musicBtn.classList.add('playing'); sessionStorage.setItem('bgmPaused', 'false'); }
+    else { fadeOut(bgm, 800); musicBtn.classList.remove('playing'); sessionStorage.setItem('bgmPaused', 'true'); }
+  }
+  window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('bgmTime',   bgm.currentTime);
+    sessionStorage.setItem('bgmPaused', bgm.paused ? 'true' : 'false');
+  });
+  window.addEventListener('load', () => {
+    const savedTime = parseFloat(sessionStorage.getItem('bgmTime') || '0');
+    const wasPaused = sessionStorage.getItem('bgmPaused');
+    bgm.currentTime = savedTime;
+    if (wasPaused === null || wasPaused === 'false') { fadeIn(bgm, 800); musicBtn.classList.add('playing'); }
+  });
+</script>
+</body>
+</html>
