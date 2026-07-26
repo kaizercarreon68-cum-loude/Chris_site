@@ -140,6 +140,55 @@
     .thanks-text { font-family: 'Orbitron'; font-size: 24px; letter-spacing: 5px; text-align: center; line-height: 2; }
     .thanks-signature { margin-top: 30px; font-size: 18px; color: var(--cyan); }
 
+    /* ── MOBILE / PORTRAIT ── */
+    @media (orientation: portrait), (max-width: 768px) {
+      html, body { overflow-y: auto; height: auto; min-height: 100vh; }
+      .scene { width: 100%; height: auto; min-height: 100vh; align-items: flex-start; overflow: visible; }
+      .bg { position: fixed; }
+      .bg-overlay { background: linear-gradient(to bottom, rgba(2,5,20,0.35) 0%, rgba(2,5,20,0.75) 35%, rgba(2,5,20,0.95) 65%, rgba(2,5,20,0.98) 100%); }
+      .bg-darkhour-fog { position: fixed; }
+      .bg-tint, .bg-grid { position: fixed; }
+
+      .right-panel {
+        position: relative; right: auto; top: auto; bottom: auto;
+        width: 100%; min-height: 100vh;
+        padding: 96px 24px 140px;
+        justify-content: center;
+      }
+      .logo { margin-bottom: 40px; }
+      .logo-title { font-size: 28px; letter-spacing: 3px; }
+      .logo-reload { font-size: 20px; }
+      .logo-reload-wrap { padding: 4px 12px 4px 10px; }
+
+      .menu-text { font-size: 24px; letter-spacing: 1.5px; }
+      .menu-item.dimmed .menu-text { font-size: 18px; }
+      .menu-item { padding: 10px 0; }
+      .dh-log { font-size: 11px; white-space: normal; }
+
+      .clock-widget { top: 20px; right: 20px; font-size: 11px; }
+
+      .corner { width: 22px; height: 22px; }
+      .corner-tl, .corner-tr { top: 12px; }
+      .corner-bl, .corner-br { bottom: 12px; }
+      .corner-tl, .corner-bl { left: 12px; }
+      .corner-tr, .corner-br { right: 12px; }
+
+      .hud { position: fixed; bottom: 14px; right: 14px; left: 14px; justify-content: flex-end; gap: 14px; flex-wrap: wrap; z-index: 30; }
+      .hud-btn, .music-btn { font-size: 11px; }
+      .hud-status-dh { margin-right: 8px; font-size: 10px; padding: 2px 8px; }
+
+      .ticker { position: fixed; }
+
+      /* Credits */
+      .credits-scroll { width: 88%; }
+      .credit-name { font-size: 22px; }
+      .credit-sub { font-size: 14px; }
+      .credit-header { font-size: 10px; letter-spacing: 3px; }
+      .dev-note { font-size: 13px; padding: 20px; margin: 100px 0; }
+      .thanks-text { font-size: 16px; letter-spacing: 3px; }
+      .thanks-signature { font-size: 14px; }
+      .credit-section { margin-bottom: 120px; }
+    }
   </style>
 </head>
 <body>

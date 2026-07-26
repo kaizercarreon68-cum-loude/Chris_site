@@ -59,6 +59,41 @@
     @keyframes eqBounce { from { height: 3px; } to { height: 14px; } }
     .ticker { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; z-index: 15; background: linear-gradient(to right, transparent, var(--cyan), transparent); animation: tickerPulse 4s ease-in-out infinite; }
     @keyframes tickerPulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+
+    /* ── MOBILE / PORTRAIT ── */
+    @media (orientation: portrait), (max-width: 768px) {
+      html, body { overflow-y: auto; height: auto; min-height: 100vh; }
+      .scene { height: auto; min-height: 100vh; overflow: visible; align-items: flex-start; padding: 90px 16px 110px; }
+      .bg { position: fixed; background-position: center; }
+      .bg-overlay { position: fixed; }
+      .bg-tint, .bg-grid { position: fixed; }
+      .scanlines { position: fixed; }
+
+      .back-btn { top: 16px; left: 16px; padding: 6px 14px; font-size: 10px; }
+
+      .card { width: 100%; max-width: 100%; padding: 32px 22px; }
+      .card-label { font-size: 10px; letter-spacing: 3px; }
+      .card-name { font-size: 24px; letter-spacing: 2px; }
+      .divider { margin: 16px 0; }
+
+      .stats { gap: 12px; margin-bottom: 28px; }
+      .stat-row { flex-direction: column; align-items: flex-start; gap: 3px; }
+      .stat-key { width: auto; font-size: 10px; }
+      .stat-sep { display: none; }
+      .stat-val { font-size: 15px; }
+
+      .bio { font-size: 14.5px; line-height: 1.65; margin-bottom: 30px; }
+      .start-btn { font-size: 11px; padding: 11px 26px; }
+
+      .corner { width: 22px; height: 22px; }
+      .corner-tl, .corner-tr { top: 12px; }
+      .corner-bl, .corner-br { bottom: 12px; }
+      .corner-tl, .corner-bl { left: 12px; }
+      .corner-tr, .corner-br { right: 12px; }
+
+      .hud { position: fixed; bottom: 14px; right: 14px; }
+      .ticker { position: fixed; }
+    }
   </style>
 </head>
 <body>
